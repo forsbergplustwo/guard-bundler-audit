@@ -4,7 +4,7 @@ require 'guard/plugin'
 require 'bundler/audit/scanner'
 
 module Guard
-  class BundlerAudit < Plugin #Guard
+  class BundlerAudit < Plugin # Guard
     #
     # Guard callback
     #
@@ -23,7 +23,7 @@ module Guard
     #
     # Guard callback
     #
-    def run_on_changes paths
+    def run_on_changes(_paths)
       audit
     end
 
@@ -35,9 +35,9 @@ module Guard
     def audit
       res = ::Bundler::Audit::Scanner.new.scan.to_a.map do |vuln|
         case vuln
-        when ::Bundler::Audit::Scanner::InsecureSource
+        when ::Bundler::Audit::Scanner::Results::InsecureSource
           insecure_source_message vuln
-        when ::Bundler::Audit::Scanner::UnpatchedGem
+        when ::Bundler::Audit::Scanner::Results::UnpatchedGem
           insecure_gem_message vuln
         else
           insecure_message vuln
@@ -48,25 +48,25 @@ module Guard
         color = :red
         notify message
       else
-        message = "No vulnerabilities found."
+        message = 'No vulnerabilities found.'
         color = :green
       end
       UI.info(UI.send(:color, message, color))
     end
 
-    def notify message
+    def notify(message)
       ::Guard::Notifier.notify(message, title: message, image: :pending)
     end
 
-    def insecure_message vuln
+    def insecure_message(vuln)
       "Vulnerability found: #{vuln.name}"
     end
 
-    def insecure_source_message vuln
+    def insecure_source_message(vuln)
       "Insecure source URI found: #{vuln.source}"
     end
 
-    def insecure_gem_message vuln
+    def insecure_gem_message(vuln)
       "Insecure gem found: #{vuln.gem} #{vuln.advisory} #{vuln.advisory.url}"
     end
   end
